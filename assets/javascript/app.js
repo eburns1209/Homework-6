@@ -1,23 +1,39 @@
 //runs upon page loacding
 $(function (){
-	populateButtons(searchArray, "searchButton", "#buttonsArea");
+	populateButtons(searchArray, "#buttonsArea");
 })
 
 var searchArray = ["Dog", "Cat", "Bird"];
-function populateButtons(searchArray, classToAdd, areaToAddTo){
-	$(areaToAddTo).empty();
+function populateButtons(){
+	$("#buttonsArea").empty();
 	for(var i = 0; i < searchArray.length; i++){
 		var a = $('<button>');
-		a.addClass(classToAdd);
+		a.addClass("animal");
 		a.attr('data-type', searchArray[i]);
 		a.text(searchArray[i]);
-		$(areaToAddTo).append(a);
+		$("#buttonsArea").append(a);
 	}
 }
 
-$(document).on("click", ".searchButton", function(){
+// This function handles events where the add movie button is clicked
+      $("#add-animal").on("click", function(event) {
+        
+        event.preventDefault();
+        // This line of code will grab the input from the textbox
+        var animal = $("#search-input").val().trim();
+
+        // The movie from the textbox is then added to our array
+        searchArray.push(animal);
+
+        // Calling renderButtons which handles the processing of our movie array
+        populateButtons();
+      });
+
+
+
+$(".animal").on("click", function(){
 	var type = $(this).data('type');
-	var queryURL = "http://api.giphy.com/v1/stickers/random?q=" + type + "&api_key=dc6zaTOxFJmzC&limit=10";
+	var queryURL = "http://api.giphy.com/v1/stickers/search?q=" + type + "&api_key=dc6zaTOxFJmzC&limit=10";
 
 	$.ajax({url:  queryURL, 
 		method:"GET"})
@@ -28,19 +44,23 @@ $(document).on("click", ".searchButton", function(){
 		for(var i =0; i<response.data.length;i++){
 			var searchDiv = $('<div class="search-item">');
 
-			var rating = response.results[i].rating;
+			var rating = response.data[i].rating;
 			var p = $('<p>').text("Rating: " + rating);
 
-			var animated=response.results[i].images.fixed_height_small_url;
-			var still = response.results[i].images.fixed_height_small_still_url;
-			var img = $('<img>');
-			image.attr('src', still);
-			image.attr('data-still', still);
-			image.attr('data-animated', animated);
-			image.attr('data-state', 'still');
-			image.addClass('searchImage');
+			var img = response.data[i].images.url;
+
+			var animated=response.data[i].images.fixed_height_small_url;
+			var still = response.data[i].images.fixed_height_small_still_url;
+
+			var img = $('<img>').text("Image: " );
+
+			img.attr('src', still);
+			img.attr('data-still', still);
+			img.attr('data-animated', animated);
+			img.attr('data-state', 'still');
+			img.addClass('searchImage');
 			searchDiv.append(p);
-			searchDiv.append(image);
+			searchDiv.append(img);
 			$('#searches').append(searchDiv);
 		}
 	})
